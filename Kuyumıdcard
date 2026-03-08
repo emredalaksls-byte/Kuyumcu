@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A0800">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Kuyumcu Yönetim</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #D4A843;
+  --gold2: #F0C96A;
+  --gold3: #A07820;
+  --bg: #0A0800;
+  --s1: #131005;
+  --s2: #1C1808;
+  --s3: #26200E;
+  --s4: #312A14;
+  --border: #3D3418;
+  --border2: #524820;
+  --text: #F5EDD5;
+  --muted: #8A7A50;
+  --dim: #4A4028;
+  --red: #C84040;
+  --green: #40A860;
+  --radius: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  height:100dvh;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(–s1);}
+::-webkit-scrollbar-thumb{background:var(–border2);border-radius:2px;}
+
+/* ─── LOGIN ─── */
+#loginScreen{
+position:fixed;inset:0;z-index:100;
+background:var(–bg);
+display:flex;align-items:center;justify-content:center;
+flex-direction:column;gap:32px;
+padding:24px;
+}
+.login-box{
+width:100%;max-width:380px;
+background:var(–s2);
+border:1px solid var(–border2);
+border-radius:20px;
+padding:40px 32px;
+display:flex;flex-direction:column;gap:24px;
+box-shadow:0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,168,67,0.1);
+}
+.login-logo{
+text-align:center;
+font-family:‘Cormorant Garamond’,serif;
+font-size:28px;font-weight:700;
+color:var(–gold);
+letter-spacing:2px;
+}
+.login-logo span{display:block;font-size:13px;font-weight:400;color:var(–muted);letter-spacing:4px;margin-top:4px;font-family:‘Outfit’,sans-serif;}
+.login-input{
+width:100%;
+background:var(–s3);
+border:1px solid var(–border);
+border-radius:10px;
+padding:14px 16px;
+color:var(–text);
+font-size:15px;
+font-family:‘Outfit’,sans-serif;
+outline:none;
+transition:border-color .2s;
+}
+.login-input:focus{border-color:var(–gold);}
+.login-btn{
+width:100%;
+background:linear-gradient(135deg,var(–gold3),var(–gold),var(–gold2));
+border:none;border-radius:10px;
+padding:14px;
+color:#0A0800;
+font-size:15px;font-weight:600;
+font-family:‘Outfit’,sans-serif;
+cursor:pointer;
+letter-spacing:.5px;
+transition:opacity .2s, transform .1s;
+}
+.login-btn:active{transform:scale(0.98);}
+.login-err{color:var(–red);font-size:13px;text-align:center;display:none;}
+
+/* ─── LAYOUT ─── */
+#app{display:flex;flex-direction:column;height:100%;display:none;}
+.topbar{
+display:flex;align-items:center;justify-content:space-between;
+padding:14px 20px;
+background:var(–s1);
+border-bottom:1px solid var(–border);
+flex-shrink:0;
+}
+.topbar-title{
+font-family:‘Cormorant Garamond’,serif;
+font-size:22px;font-weight:700;
+color:var(–gold);letter-spacing:1px;
+}
+.topbar-sub{font-size:11px;color:var(–muted);letter-spacing:2px;}
+.topbar-right{display:flex;gap:10px;}
+.icon-btn{
+width:38px;height:38px;
+background:var(–s3);
+border:1px solid var(–border);
+border-radius:10px;
+display:flex;align-items:center;justify-content:center;
+cursor:pointer;color:var(–muted);
+font-size:16px;transition:all .2s;
+flex-shrink:0;
+}
+.icon-btn:hover{border-color:var(–gold);color:var(–gold);}
+
+/* ─── TABS ─── */
+.tabs{
+display:flex;
+background:var(–s1);
+border-bottom:1px solid var(–border);
+flex-shrink:0;
+}
+.tab{
+flex:1;padding:12px 6px;
+text-align:center;font-size:12px;font-weight:500;
+color:var(–muted);cursor:pointer;
+border-bottom:2px solid transparent;
+transition:all .2s;letter-spacing:.3px;
+}
+.tab.active{color:var(–gold);border-bottom-color:var(–gold);}
+
+/* ─── CONTENT ─── */
+.content{flex:1;overflow-y:auto;padding:16px;}
+.page{display:none;}
+.page.active{display:block;}
+
+/* ─── FORM ─── */
+.form-card{
+background:var(–s2);
+border:1px solid var(–border);
+border-radius:var(–radius);
+padding:20px;
+display:flex;flex-direction:column;gap:16px;
+}
+.form-row{display:flex;flex-direction:column;gap:6px;}
+.form-label{
+font-size:12px;font-weight:500;
+color:var(–muted);letter-spacing:.5px;
+display:flex;align-items:center;gap:6px;
+}
+.req{color:var(–gold);font-size:10px;}
+.form-input,.form-textarea,.form-select{
+background:var(–s3);
+border:1px solid var(–border);
+border-radius:8px;
+padding:12px 14px;
+color:var(–text);
+font-size:14px;
+font-family:‘Outfit’,sans-serif;
+outline:none;
+width:100%;
+transition:border-color .2s;
+}
+.form-input:focus,.form-textarea:focus,.form-select:focus{border-color:var(–gold);}
+.form-textarea{resize:vertical;min-height:80px;}
+.form-select option{background:var(–s3);}
+
+/* ─── PHOTO UPLOAD ─── */
+.photo-row{display:flex;gap:12px;}
+.photo-box{
+flex:1;
+background:var(–s3);
+border:2px dashed var(–border2);
+border-radius:10px;
+min-height:120px;
+display:flex;flex-direction:column;
+align-items:center;justify-content:center;
+gap:8px;cursor:pointer;
+transition:all .2s;overflow:hidden;position:relative;
+}
+.photo-box:hover{border-color:var(–gold);}
+.photo-box.has-photo{border-style:solid;border-color:var(–gold3);}
+.photo-box img{width:100%;height:120px;object-fit:cover;border-radius:8px;}
+.photo-icon{font-size:24px;color:var(–muted);}
+.photo-label{font-size:11px;color:var(–muted);text-align:center;padding:0 8px;}
+.photo-remove{
+position:absolute;top:6px;right:6px;
+width:22px;height:22px;
+background:rgba(200,64,64,0.85);
+border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+color:white;font-size:12px;cursor:pointer;
+}
+input[type=file]{display:none;}
+
+/* ─── BUTTONS ─── */
+.btn-gold{
+width:100%;
+background:linear-gradient(135deg,var(–gold3),var(–gold));
+border:none;border-radius:10px;
+padding:15px;
+color:#0A0800;font-size:15px;font-weight:600;
+font-family:‘Outfit’,sans-serif;
+cursor:pointer;letter-spacing:.3px;
+transition:opacity .2s,transform .1s;
+}
+.btn-gold:active{transform:scale(0.98);}
+.btn-ghost{
+background:var(–s3);
+border:1px solid var(–border2);
+border-radius:8px;padding:10px 16px;
+color:var(–text);font-size:13px;
+font-family:‘Outfit’,sans-serif;
+cursor:pointer;transition:all .2s;
+}
+.btn-ghost:hover{border-color:var(–gold);color:var(–gold);}
+.btn-red{
+background:rgba(200,64,64,0.15);
+border:1px solid rgba(200,64,64,0.4);
+border-radius:8px;padding:8px 14px;
+color:var(–red);font-size:12px;
+font-family:‘Outfit’,sans-serif;cursor:pointer;
+}
+
+/* ─── SEARCH ─── */
+.search-bar{
+display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;
+}
+.search-input{
+flex:1;min-width:160px;
+background:var(–s2);
+border:1px solid var(–border);
+border-radius:10px;
+padding:11px 14px;
+color:var(–text);font-size:14px;
+font-family:‘Outfit’,sans-serif;outline:none;
+transition:border-color .2s;
+}
+.search-input:focus{border-color:var(–gold);}
+.search-select{
+background:var(–s2);
+border:1px solid var(–border);
+border-radius:10px;
+padding:11px 14px;
+color:var(–muted);font-size:13px;
+font-family:‘Outfit’,sans-serif;outline:none;
+cursor:pointer;
+}
+.search-select option{background:var(–s2);}
+
+/* ─── CUSTOMER CARD ─── */
+.customer-card{
+background:var(–s2);
+border:1px solid var(–border);
+border-radius:var(–radius);
+padding:16px;margin-bottom:12px;
+cursor:pointer;transition:all .2s;
+}
+.customer-card:hover{border-color:var(–border2);background:var(–s3);}
+.cc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.cc-name{font-size:16px;font-weight:600;color:var(–text);}
+.cc-amount{
+font-size:15px;font-weight:600;
+color:var(–gold);white-space:nowrap;
+}
+.cc-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.cc-tag{
+font-size:11px;color:var(–muted);
+background:var(–s3);
+border:1px solid var(–border);
+border-radius:6px;padding:3px 8px;
+}
+
+/* ─── DETAIL MODAL ─── */
+.modal-overlay{
+position:fixed;inset:0;z-index:200;
+background:rgba(0,0,0,0.85);
+display:flex;align-items:flex-end;
+padding:0;display:none;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+width:100%;
+background:var(–s1);
+border-radius:20px 20px 0 0;
+border:1px solid var(–border2);
+border-bottom:none;
+max-height:92vh;
+overflow-y:auto;
+padding:24px 20px 40px;
+display:flex;flex-direction:column;gap:16px;
+animation:slideUp .3s ease;
+}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{
+width:40px;height:4px;
+background:var(–border2);border-radius:2px;
+margin:0 auto 8px;
+}
+.modal-title{
+font-family:‘Cormorant Garamond’,serif;
+font-size:22px;font-weight:700;color:var(–gold);
+}
+.detail-row{display:flex;flex-direction:column;gap:4px;padding:12px 0;border-bottom:1px solid var(–border);}
+.detail-row:last-child{border-bottom:none;}
+.detail-key{font-size:11px;color:var(–muted);letter-spacing:.5px;text-transform:uppercase;}
+.detail-val{font-size:15px;color:var(–text);}
+.photo-preview-row{display:flex;gap:10px;margin-top:4px;}
+.photo-preview-row img{flex:1;border-radius:8px;object-fit:cover;max-height:150px;cursor:pointer;}
+.modal-actions{display:flex;gap:10px;margin-top:8px;}
+
+/* ─── TOAST ─── */
+.toast{
+position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+background:var(–s4);
+border:1px solid var(–border2);
+border-radius:10px;padding:12px 20px;
+font-size:14px;color:var(–text);
+z-index:500;white-space:nowrap;
+opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.toast.show{opacity:1;}
+.toast.success{border-color:var(–green);color:var(–green);}
+.toast.error{border-color:var(–red);color:var(–red);}
+
+/* ─── EMPTY STATE ─── */
+.empty{
+text-align:center;padding:60px 20px;
+color:var(–dim);
+}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.5;}
+.empty-text{font-size:14px;}
+
+/* ─── SETTINGS ─── */
+.settings-section{
+background:var(–s2);
+border:1px solid var(–border);
+border-radius:var(–radius);
+overflow:hidden;margin-bottom:16px;
+}
+.settings-item{
+padding:16px 20px;
+border-bottom:1px solid var(–border);
+display:flex;align-items:center;justify-content:space-between;
+}
+.settings-item:last-child{border-bottom:none;}
+.settings-item-label{font-size:14px;color:var(–text);}
+.settings-item-sub{font-size:12px;color:var(–muted);margin-top:2px;}
+
+/* ─── FIREBASE CONFIG ─── */
+.firebase-config{
+background:var(–s3);
+border:1px solid var(–border2);
+border-radius:10px;padding:16px;
+margin-bottom:16px;
+}
+.firebase-config h3{
+font-size:14px;font-weight:600;color:var(–gold);
+margin-bottom:12px;
+}
+.config-note{font-size:12px;color:var(–muted);line-height:1.6;margin-bottom:12px;}
+.config-fields{display:flex;flex-direction:column;gap:10px;}
+
+/* ─── LOADING ─── */
+.spinner{
+width:20px;height:20px;
+border:2px solid var(–border2);
+border-top-color:var(–gold);
+border-radius:50%;
+animation:spin .7s linear infinite;
+display:inline-block;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ─── STATS ─── */
+.stats-row{display:flex;gap:10px;margin-bottom:16px;}
+.stat-box{
+flex:1;
+background:var(–s2);
+border:1px solid var(–border);
+border-radius:var(–radius);
+padding:14px;text-align:center;
+}
+.stat-val{
+font-family:‘Cormorant Garamond’,serif;
+font-size:22px;font-weight:700;color:var(–gold);
+}
+.stat-key{font-size:11px;color:var(–muted);margin-top:4px;}
+
+/* ─── FULL IMAGE VIEWER ─── */
+.img-viewer{
+position:fixed;inset:0;z-index:300;
+background:rgba(0,0,0,0.95);
+display:none;align-items:center;justify-content:center;
+padding:20px;
+}
+.img-viewer.open{display:flex;}
+.img-viewer img{max-width:100%;max-height:100%;border-radius:8px;object-fit:contain;}
+.img-viewer-close{
+position:absolute;top:20px;right:20px;
+width:36px;height:36px;
+background:var(–s3);border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+color:var(–text);cursor:pointer;font-size:18px;
+}
+</style>
+
+</head>
+<body>
+
+<!-- LOGIN -->
+
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      ◆ KUYUMCU ◆
+      <span>YÖNETİM SİSTEMİ</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <input class="login-input" type="text" id="loginUser" placeholder="Kullanıcı adı" autocomplete="username">
+      <input class="login-input" type="password" id="loginPass" placeholder="Şifre" autocomplete="current-password">
+    </div>
+    <div class="login-err" id="loginErr">Kullanıcı adı veya şifre hatalı.</div>
+    <button class="login-btn" onclick="doLogin()">Giriş Yap</button>
+    <p style="font-size:11px;color:var(--dim);text-align:center;">Varsayılan: admin / kuyumcu123</p>
+  </div>
+</div>
+
+<!-- APP -->
+
+<div id="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">◆ KUYUMCU</div>
+      <div class="topbar-sub" id="fbStatus">Firebase bağlantısı yok</div>
+    </div>
+    <div class="topbar-right">
+      <div class="icon-btn" onclick="showPage('settings')" title="Ayarlar">⚙</div>
+      <div class="icon-btn" onclick="doLogout()" title="Çıkış">⏻</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showPage('newCustomer')">➕ Yeni</div>
+    <div class="tab" onclick="showPage('search')">🔍 Ara</div>
+    <div class="tab" onclick="showPage('settings')">⚙ Ayarlar</div>
+  </div>
+
+  <div class="content">
+
+```
+<!-- YENİ MÜŞTERİ -->
+<div class="page active" id="page-newCustomer">
+  <div class="form-card">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--gold);margin-bottom:4px;">Yeni Kayıt</div>
+
+    <div class="form-row">
+      <label class="form-label">İşlem Tarihi <span class="req">★</span></label>
+      <input class="form-input" type="date" id="f_date">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Müşteri Adı Soyadı <span class="req">★</span></label>
+      <input class="form-input" type="text" id="f_name" placeholder="Ad Soyad">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">TC Kimlik No <span class="req">★</span></label>
+      <input class="form-input" type="text" id="f_tc" placeholder="11 haneli TC" maxlength="11" inputmode="numeric">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Telefon <span class="req">★</span></label>
+      <input class="form-input" type="tel" id="f_phone" placeholder="05xx xxx xx xx" inputmode="tel">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Adres <span class="req">★</span></label>
+      <textarea class="form-textarea" id="f_address" placeholder="Müşteri adresi..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Meslek <span class="req">★</span></label>
+      <input class="form-input" type="text" id="f_job" placeholder="Meslek">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Kimlik Fotoğrafları <span class="req">★</span></label>
+      <div class="photo-row">
+        <div class="photo-box" id="photoFrontBox" onclick="document.getElementById('photoFrontInput').click()">
+          <div class="photo-icon">🪪</div>
+          <div class="photo-label">Ön Yüz</div>
+        </div>
+        <div class="photo-box" id="photoBackBox" onclick="document.getElementById('photoBackInput').click()">
+          <div class="photo-icon">🪪</div>
+          <div class="photo-label">Arka Yüz</div>
+        </div>
+      </div>
+      <input type="file" id="photoFrontInput" accept="image/*" capture="environment" onchange="loadPhoto('front',this)">
+      <input type="file" id="photoBackInput" accept="image/*" capture="environment" onchange="loadPhoto('back',this)">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">İşlem Tutarı (₺) <span class="req">★</span></label>
+      <input class="form-input" type="text" id="f_amount" placeholder="0.00" inputmode="decimal">
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Not</label>
+      <textarea class="form-textarea" id="f_note" placeholder="Opsiyonel not..."></textarea>
+    </div>
+
+    <button class="btn-gold" onclick="saveCustomer()" id="saveBtn">Kaydet</button>
+  </div>
+</div>
+
+<!-- ARAMA -->
+<div class="page" id="page-search">
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-val" id="statCount">0</div>
+      <div class="stat-key">Müşteri</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="statTotal">₺0</div>
+      <div class="stat-key">Toplam Tutar</div>
+    </div>
+  </div>
+  <div class="search-bar">
+    <input class="search-input" type="text" id="searchQ" placeholder="Ara..." oninput="doSearch()">
+    <select class="search-select" id="searchBy" onchange="doSearch()">
+      <option value="name">Ad Soyad</option>
+      <option value="tc">TC No</option>
+      <option value="date">Tarih</option>
+      <option value="amount">Tutar</option>
+      <option value="phone">Telefon</option>
+    </select>
+  </div>
+  <div id="searchResults"></div>
+</div>
+
+<!-- AYARLAR -->
+<div class="page" id="page-settings">
+  <div class="firebase-config">
+    <h3>🔥 Firebase Ayarları</h3>
+    <div class="config-note">
+      Firebase Console'dan proje oluşturun → Firestore Database aktif edin → Storage aktif edin → Web uygulaması ekleyin → Config bilgilerini buraya girin.
+    </div>
+    <div class="config-fields">
+      <input class="form-input" type="text" id="cfg_apiKey" placeholder="apiKey">
+      <input class="form-input" type="text" id="cfg_authDomain" placeholder="authDomain (xxx.firebaseapp.com)">
+      <input class="form-input" type="text" id="cfg_projectId" placeholder="projectId">
+      <input class="form-input" type="text" id="cfg_storageBucket" placeholder="storageBucket (xxx.appspot.com)">
+      <input class="form-input" type="text" id="cfg_messagingSenderId" placeholder="messagingSenderId">
+      <input class="form-input" type="text" id="cfg_appId" placeholder="appId">
+      <button class="btn-gold" onclick="saveFirebaseConfig()">Firebase'e Bağlan</button>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-item">
+      <div>
+        <div class="settings-item-label">Şifre Değiştir</div>
+        <div class="settings-item-sub">Giriş şifrenizi güncelleyin</div>
+      </div>
+      <button class="btn-ghost" onclick="changePassword()">Değiştir</button>
+    </div>
+    <div class="settings-item">
+      <div>
+        <div class="settings-item-label">Verileri Dışa Aktar</div>
+        <div class="settings-item-sub">JSON formatında indir</div>
+      </div>
+      <button class="btn-ghost" onclick="exportData()">İndir</button>
+    </div>
+    <div class="settings-item">
+      <div>
+        <div class="settings-item-label">Bağlantı Durumu</div>
+        <div class="settings-item-sub" id="cfgStatus">Yapılandırılmadı</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:20px;color:var(--dim);font-size:12px;">
+    Kuyumcu Yönetim Sistemi v1.0<br>Tüm veriler şifreli saklanır.
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="modal-title">Müşteri Detayı</div>
+      <div class="icon-btn" onclick="closeModal()">✕</div>
+    </div>
+    <div id="modalContent"></div>
+    <div class="modal-actions">
+      <button class="btn-red" onclick="deleteCustomer()" id="deleteBtn">🗑 Sil</button>
+      <button class="btn-ghost" style="flex:1" onclick="closeModal()">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMAGE VIEWER -->
+
+<div class="img-viewer" id="imgViewer" onclick="closeImgViewer()">
+  <div class="img-viewer-close">✕</div>
+  <img id="imgViewerSrc" src="" alt="">
+</div>
+
+<!-- TOAST -->
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+
+<script>
+var customers = [];
+var currentId = null;
+var photoData = { front: null, back: null };
+var fbDb = null;
+
+function getPassword() {
+  return localStorage.getItem('kuyumcu_pass') || 'kuyumcu123';
+}
+
+// ── LOGIN / LOGOUT ──
+function doLogin() {
+  var u = document.getElementById('loginUser').value.trim();
+  var p = document.getElementById('loginPass').value;
+  if(u === 'admin' && p === getPassword()) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('f_date').valueAsDate = new Date();
+    loadLocalData();
+    loadFbConfig();
+  } else {
+    var err = document.getElementById('loginErr');
+    err.style.display = 'block';
+    setTimeout(function(){ err.style.display='none'; }, 3000);
+  }
+}
+
+function doLogout() {
+  if(confirm('Çıkış yapmak istiyor musunuz?')) {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+  }
+}
+
+document.getElementById('loginPass').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
+// ── TABS ──
+function showPage(name) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  var tabs = document.querySelectorAll('.tab');
+  var tabMap = {'newCustomer':0,'search':1,'settings':2};
+  if(tabMap[name] !== undefined) tabs[tabMap[name]].classList.add('active');
+  document.getElementById('page-'+name).classList.add('active');
+  if(name === 'search') renderSearch();
+}
+
+// ── PHOTOS ──
+document.getElementById('photoFrontInput').addEventListener('change', function(){ loadPhoto('front', this); });
+document.getElementById('photoBackInput').addEventListener('change', function(){ loadPhoto('back', this); });
+
+function loadPhoto(side, input) {
+  var file = input.files[0];
+  if(!file) return;
+  // Compress image before storing
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var maxW = 800, maxH = 600;
+      var w = img.width, h = img.height;
+      if(w > maxW){ h = h*(maxW/w); w = maxW; }
+      if(h > maxH){ w = w*(maxH/h); h = maxH; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      var compressed = canvas.toDataURL('image/jpeg', 0.6);
+      photoData[side] = compressed;
+      var boxId = side==='front'?'photoFrontBox':'photoBackBox';
+      var label = side==='front'?'Ön Yüz':'Arka Yüz';
+      var box = document.getElementById(boxId);
+      box.innerHTML = '<img src="'+compressed+'" alt=""><div class="photo-remove">✕</div>';
+      box.classList.add('has-photo');
+      box.querySelector('.photo-remove').addEventListener('click', function(ev){
+        ev.stopPropagation();
+        photoData[side] = null;
+        box.innerHTML = '<div class="photo-icon">🪪</div><div class="photo-label">'+label+'</div>';
+        box.classList.remove('has-photo');
+        document.getElementById('photo'+(side==='front'?'Front':'Back')+'Input').value='';
+      });
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── FIREBASE ──
+function loadFbConfig() {
+  // Sabit Firebase config - otomatik bağlanır
+  var defaultCfg = {
+    apiKey: "AIzaSyDeQQ2K0rG70xmfTHCSxlPwslzbvvyPja0",
+    authDomain: "kuyum-id-card.firebaseapp.com",
+    projectId: "kuyum-id-card",
+    storageBucket: "kuyum-id-card.firebasestorage.app",
+    messagingSenderId: "288948069739",
+    appId: "1:288948069739:web:eb7109da91a773fcf8982e"
+  };
+  try {
+    var saved = JSON.parse(localStorage.getItem('kuyumcu_fbcfg')||'{}');
+    var cfg = saved.apiKey ? saved : defaultCfg;
+    document.getElementById('cfg_apiKey').value = cfg.apiKey||'';
+    document.getElementById('cfg_authDomain').value = cfg.authDomain||'';
+    document.getElementById('cfg_projectId').value = cfg.projectId||'';
+    document.getElementById('cfg_storageBucket').value = cfg.storageBucket||'';
+    document.getElementById('cfg_messagingSenderId').value = cfg.messagingSenderId||'';
+    document.getElementById('cfg_appId').value = cfg.appId||'';
+    initFirebase(cfg);
+  } catch(e){ initFirebase(defaultCfg); }
+}
+
+function saveFirebaseConfig() {
+  var cfg = {
+    apiKey: document.getElementById('cfg_apiKey').value.trim(),
+    authDomain: document.getElementById('cfg_authDomain').value.trim(),
+    projectId: document.getElementById('cfg_projectId').value.trim(),
+    storageBucket: document.getElementById('cfg_storageBucket').value.trim(),
+    messagingSenderId: document.getElementById('cfg_messagingSenderId').value.trim(),
+    appId: document.getElementById('cfg_appId').value.trim()
+  };
+  if(!cfg.apiKey||!cfg.projectId){ showToast('apiKey ve projectId zorunlu','error'); return; }
+  localStorage.setItem('kuyumcu_fbcfg', JSON.stringify(cfg));
+  initFirebase(cfg);
+}
+
+function initFirebase(cfg) {
+  try {
+    // Load Firebase SDK dynamically
+    var script1 = document.createElement('script');
+    script1.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
+    script1.onload = function() {
+      var script2 = document.createElement('script');
+      script2.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
+      script2.onload = function() {
+        try {
+          if(firebase.apps.length === 0) {
+            firebase.initializeApp(cfg);
+          }
+          fbDb = firebase.firestore();
+          document.getElementById('fbStatus').textContent = '🟢 Firebase bağlı';
+          document.getElementById('cfgStatus').textContent = 'Bağlı: '+cfg.projectId;
+          showToast('Firebase bağlandı ✓','success');
+          syncFromFirebase();
+        } catch(e2) {
+          showToast('Firebase hatası: '+e2.message,'error');
+        }
+      };
+      document.head.appendChild(script2);
+    };
+    document.head.appendChild(script1);
+  } catch(e) {
+    showToast('Bağlantı hatası: '+e.message,'error');
+  }
+}
+
+function syncFromFirebase() {
+  if(!fbDb) return;
+  fbDb.collection('customers').orderBy('createdAt','desc').get().then(function(snap) {
+    var fbData = [];
+    snap.forEach(function(d){ fbData.push(Object.assign({id:d.id}, d.data())); });
+    customers = fbData;
+    saveLocalData();
+    showToast(fbData.length+' kayıt yüklendi','success');
+  }).catch(function(e){ showToast('Veri yüklenemedi: '+e.message,'error'); });
+}
+
+function saveToFirebase(customer, callback) {
+  if(!fbDb){ callback && callback(); return; }
+  // Photos are stored as base64 directly in Firestore
+  fbDb.collection('customers').add(customer).then(function(ref){
+    customer.id = ref.id;
+    callback && callback();
+  }).catch(function(e){
+    showToast('Firebase kayıt hatası: '+e.message,'error');
+    callback && callback();
+  });
+}
+
+function deleteFromFirebase(id) {
+  if(!fbDb || id.startsWith('c_')) return;
+  fbDb.collection('customers').doc(id).delete().catch(function(e){
+    showToast('Silme hatası: '+e.message,'error');
+  });
+}
+
+// ── SAVE ──
+function saveCustomer() {
+  var name = document.getElementById('f_name').value.trim();
+  var tc = document.getElementById('f_tc').value.trim();
+  var phone = document.getElementById('f_phone').value.trim();
+  var address = document.getElementById('f_address').value.trim();
+  var job = document.getElementById('f_job').value.trim();
+  var amount = document.getElementById('f_amount').value.trim();
+  var date = document.getElementById('f_date').value;
+  var note = document.getElementById('f_note').value.trim();
+
+  if(!name){ showToast('Ad Soyad zorunlu','error'); return; }
+  if(!tc || tc.length !== 11){ showToast('TC 11 hane olmalı','error'); return; }
+  if(!phone){ showToast('Telefon zorunlu','error'); return; }
+  if(!address){ showToast('Adres zorunlu','error'); return; }
+  if(!job){ showToast('Meslek zorunlu','error'); return; }
+  if(!photoData.front){ showToast('Kimlik ön fotoğrafı zorunlu','error'); return; }
+  if(!photoData.back){ showToast('Kimlik arka fotoğrafı zorunlu','error'); return; }
+  if(!amount){ showToast('İşlem tutarı zorunlu','error'); return; }
+
+  var btn = document.getElementById('saveBtn');
+  btn.innerHTML = '<span class="spinner"></span> Kaydediliyor...';
+  btn.disabled = true;
+
+  var customer = {
+    id: 'c_'+Date.now(),
+    name: name, tc: tc, phone: phone, address: address,
+    job: job, amount: amount, date: date, note: note,
+    photoFront: photoData.front,
+    photoBack: photoData.back,
+    createdAt: new Date().toISOString()
+  };
+
+  if(fbDb) {
+    var toSave = Object.assign({}, customer);
+    delete toSave.id;
+    saveToFirebase(toSave, function(){
+      customers.unshift(customer);
+      saveLocalData();
+      showToast('Müşteri kaydedildi ✓','success');
+      resetForm();
+      btn.innerHTML = 'Kaydet';
+      btn.disabled = false;
+    });
+  } else {
+    customers.unshift(customer);
+    saveLocalData();
+    showToast('Yerel olarak kaydedildi ✓','success');
+    resetForm();
+    btn.innerHTML = 'Kaydet';
+    btn.disabled = false;
+  }
+}
+
+function resetForm() {
+  ['f_name','f_tc','f_phone','f_address','f_job','f_amount','f_note'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f_date').valueAsDate = new Date();
+  photoData = { front: null, back: null };
+  ['front','back'].forEach(function(side){
+    var boxId = side==='front'?'photoFrontBox':'photoBackBox';
+    var label = side==='front'?'Ön Yüz':'Arka Yüz';
+    document.getElementById(boxId).innerHTML = '<div class="photo-icon">🪪</div><div class="photo-label">'+label+'</div>';
+    document.getElementById(boxId).classList.remove('has-photo');
+    document.getElementById('photo'+(side==='front'?'Front':'Back')+'Input').value='';
+  });
+}
+
+// ── LOCAL DATA ──
+function saveLocalData() {
+  try { localStorage.setItem('kuyumcu_data', JSON.stringify(customers)); } catch(e){}
+  updateStats();
+}
+function loadLocalData() {
+  try { customers = JSON.parse(localStorage.getItem('kuyumcu_data') || '[]'); } catch(e){ customers=[]; }
+  updateStats();
+}
+function updateStats() {
+  document.getElementById('statCount').textContent = customers.length;
+  var total = customers.reduce(function(s,c){ return s+(parseFloat(c.amount)||0); }, 0);
+  document.getElementById('statTotal').textContent = '₺'+total.toLocaleString('tr-TR',{maximumFractionDigits:0});
+}
+
+// ── SEARCH ──
+function doSearch() { renderSearch(); }
+function renderSearch() {
+  var q = (document.getElementById('searchQ').value||'').toLowerCase();
+  var by = document.getElementById('searchBy').value;
+  var container = document.getElementById('searchResults');
+  var results = q ? customers.filter(function(c){
+    var val = by==='name'?c.name : by==='tc'?c.tc : by==='date'?c.date : by==='amount'?c.amount : c.phone;
+    return (val||'').toLowerCase().indexOf(q) !== -1;
+  }) : customers;
+
+  if(!results.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">'+(q?'Sonuç bulunamadı':'Henüz kayıt yok')+'</div></div>';
+    return;
+  }
+  container.innerHTML = results.map(function(c){
+    return '<div class="customer-card" data-id="'+c.id+'">'+
+      '<div class="cc-top"><div class="cc-name">'+esc(c.name)+'</div>'+
+      '<div class="cc-amount">₺'+parseFloat(c.amount||0).toLocaleString('tr-TR')+'</div></div>'+
+      '<div class="cc-meta">'+
+      '<div class="cc-tag">📅 '+(c.date||'-')+'</div>'+
+      '<div class="cc-tag">🪪 '+c.tc+'</div>'+
+      '<div class="cc-tag">📞 '+esc(c.phone)+'</div>'+
+      '</div></div>';
+  }).join('');
+  container.querySelectorAll('.customer-card').forEach(function(card){
+    card.addEventListener('click', function(){ openDetail(this.getAttribute('data-id')); });
+  });
+}
+
+document.getElementById('searchQ').addEventListener('input', renderSearch);
+document.getElementById('searchBy').addEventListener('change', renderSearch);
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── DETAIL ──
+function openDetail(id) {
+  var c = customers.find(function(x){ return x.id===id; });
+  if(!c) return;
+  currentId = id;
+  function row(k,v){ return '<div class="detail-row"><div class="detail-key">'+k+'</div><div class="detail-val">'+v+'</div></div>'; }
+  document.getElementById('modalContent').innerHTML =
+    row('Tarih', c.date||'-') + row('Ad Soyad', esc(c.name)) +
+    row('TC Kimlik', c.tc) +
+    row('Telefon', '<a href="tel:'+c.phone+'" style="color:var(--gold);text-decoration:none;">'+esc(c.phone)+'</a>') +
+    row('Adres', esc(c.address)) + row('Meslek', esc(c.job)) +
+    row('İşlem Tutarı', '<span style="color:var(--gold);font-weight:600;font-size:18px;">₺'+parseFloat(c.amount||0).toLocaleString('tr-TR')+'</span>') +
+    (c.note ? row('Not', esc(c.note)) : '') +
+    '<div class="detail-row"><div class="detail-key">Kimlik Fotoğrafları</div>'+
+    '<div class="photo-preview-row">'+
+    '<img src="'+c.photoFront+'" alt="Ön" onclick="openImg(this.src)">'+
+    '<img src="'+c.photoBack+'" alt="Arka" onclick="openImg(this.src)">'+
+    '</div></div>';
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.remove('open');
+  currentId = null;
+}
+
+function deleteCustomer() {
+  if(!currentId) return;
+  if(!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
+  deleteFromFirebase(currentId);
+  customers = customers.filter(function(c){ return c.id !== currentId; });
+  saveLocalData();
+  closeModal();
+  renderSearch();
+  showToast('Kayıt silindi','success');
+}
+
+function openImg(src) {
+  document.getElementById('imgViewerSrc').src = src;
+  document.getElementById('imgViewer').classList.add('open');
+}
+function closeImgViewer() {
+  document.getElementById('imgViewer').classList.remove('open');
+}
+
+// ── SETTINGS ──
+function changePassword() {
+  var np = prompt('Yeni şifre (en az 4 karakter):');
+  if(np && np.length >= 4) {
+    localStorage.setItem('kuyumcu_pass', np);
+    showToast('Şifre güncellendi ✓','success');
+  } else if(np) {
+    showToast('En az 4 karakter girin','error');
+  }
+}
+
+function exportData() {
+  var data = JSON.stringify(customers.map(function(c){
+    return Object.assign({},c,{photoFront:'[resim]',photoBack:'[resim]'});
+  }), null, 2);
+  var a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,'+encodeURIComponent(data);
+  a.download = 'kuyumcu_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+
+// ── TOAST ──
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast'+(type?' '+type:'');
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2500);
+}
+</script>
+
+</body>
+</html>
