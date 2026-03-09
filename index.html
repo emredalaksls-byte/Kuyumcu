@@ -802,16 +802,17 @@ function syncFromFirebase() {
 
 function saveToFirebase(customer, callback) {
   if(!fbDb){ callback && callback(); return; }
-  // Store photos separately to avoid document size limit
-  var toSave = Object.assign({}, customer);
-  // Split into two saves if needed
+  var toSave = {
+    name: customer.name, tc: customer.tc, phone: customer.phone,
+    address: customer.address, job: customer.job, amount: customer.amount,
+    date: customer.date, note: customer.note, createdAt: customer.createdAt
+  };
   fbDb.collection('customers').add(toSave).then(function(ref){
     customer.id = ref.id;
     callback && callback();
   }).catch(function(e){
     console.error('Firebase error:', e);
-    // If Firebase fails, save locally anyway
-    showToast('Firebase hatası, yerel kaydedildi','error');
+    showToast('Kayıt hatası: '+e.message,'error');
     callback && callback();
   });
 }
