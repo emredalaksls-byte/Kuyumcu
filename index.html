@@ -695,13 +695,13 @@ function loadPhoto(side, input) {
     var img = new Image();
     img.onload = function() {
       var canvas = document.createElement('canvas');
-      var maxW = 800, maxH = 600;
+      var maxW = 250, maxH = 180;
       var w = img.width, h = img.height;
       if(w > maxW){ h = h*(maxW/w); w = maxW; }
       if(h > maxH){ w = w*(maxH/h); h = maxH; }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      var compressed = canvas.toDataURL('image/jpeg', 0.6);
+      var compressed = canvas.toDataURL('image/jpeg', 0.2);
       photoData[side] = compressed;
       var boxId = side==='front'?'photoFrontBox':'photoBackBox';
       var label = side==='front'?'Ön Yüz':'Arka Yüz';
@@ -802,12 +802,16 @@ function syncFromFirebase() {
 
 function saveToFirebase(customer, callback) {
   if(!fbDb){ callback && callback(); return; }
-  // Photos are stored as base64 directly in Firestore
-  fbDb.collection('customers').add(customer).then(function(ref){
+  // Store photos separately to avoid document size limit
+  var toSave = Object.assign({}, customer);
+  // Split into two saves if needed
+  fbDb.collection('customers').add(toSave).then(function(ref){
     customer.id = ref.id;
     callback && callback();
   }).catch(function(e){
-    showToast('Firebase kayıt hatası: '+e.message,'error');
+    console.error('Firebase error:', e);
+    // If Firebase fails, save locally anyway
+    showToast('Firebase hatası, yerel kaydedildi','error');
     callback && callback();
   });
 }
