@@ -857,25 +857,13 @@ function saveCustomer() {
     createdAt: new Date().toISOString()
   };
 
-  if(fbDb) {
-    var toSave = Object.assign({}, customer);
-    delete toSave.id;
-    saveToFirebase(toSave, function(){
-      customers.unshift(customer);
-      saveLocalData();
-      showToast('Müşteri kaydedildi ✓','success');
-      resetForm();
-      btn.innerHTML = 'Kaydet';
-      btn.disabled = false;
-    });
-  } else {
-    customers.unshift(customer);
-    saveLocalData();
-    showToast('Yerel olarak kaydedildi ✓','success');
-    resetForm();
-    btn.innerHTML = 'Kaydet';
-    btn.disabled = false;
-  }
+  // Direkt yerel kaydet - Firebase bypass
+  customers.unshift(customer);
+  saveLocalData();
+  showToast('Müşteri kaydedildi ✓','success');
+  resetForm();
+  btn.innerHTML = 'Kaydet';
+  btn.disabled = false;
 }
 
 function resetForm() {
